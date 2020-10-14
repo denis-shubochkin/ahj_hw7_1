@@ -3,6 +3,7 @@ const { XMLHttpRequest } = require('xmlhttprequest');
 const http = require('http');
 const Koa = require('koa');
 const koaBody = require('koa-body');
+const { nextTick } = require('process');
 
 const app = new Koa();
 const now = new Date();
@@ -12,7 +13,7 @@ app.use(koaBody({
 }));
 
 
-const tickets = [];
+let tickets = [];
 tickets[0] = {
   id: 1,
   name: 'test',
@@ -25,7 +26,7 @@ tickets[1] = {
   status: true,
   created: now,
 };
-const ticketsFull = [];
+let ticketsFull = [];
 ticketsFull[0] = {
   id: 1,
   name: 'test',
@@ -42,19 +43,20 @@ ticketsFull[1] = {
 };
 
 
-app.use(async (ctx) => {
+app.use(async (ctx, next) => {
   const { method } = ctx.request.query;
   switch (method) {
     case 'allTickets':
       ctx.response.body = tickets;
-      ctx.response.status = 200;
+      await next();
       return;
     case 'ticketById':
       ctx.response.body = ticketsFull.find((el) => {
         if (el.id === ctx.request.query.id) return el;
         return false;
       });
-      ctx.response.status = 200;
+      console.log(ticketsFull);
+      await next();
       return;
     case 'createTicket':
       tickets.push({
@@ -63,7 +65,7 @@ app.use(async (ctx) => {
         status: ctx.request.query.status,
         created: ctx.request.query.created,
       });
-      tickets.push({
+      ticketsFull.push({
         id: ctx.request.query.id,
         name: ctx.request.query.name,
         status: ctx.request.query.status,
@@ -71,7 +73,7 @@ app.use(async (ctx) => {
         description: ctx.request.query.description,
       });
       ctx.response.body = tickets[tickets.length - 1];
-      ctx.response.status = 200;
+      await next();
       return;
     default:
       ctx.response.body = 'error';
@@ -80,14 +82,19 @@ app.use(async (ctx) => {
 });
 
 // eslint-disable-next-line no-unused-vars
-const server = http.createServer(app.callback()).listen(7070);
+const port = process.env.PORT || 7070;
+const server = http.createServer(app.callback()).listen(port);
 
-
+const arr = [];
 function getMaxId() {
-  const arr = [];
-  tickets.forEach((element) => {
-    arr.push(element.id);
-  });
+  if (tickets.length > 1) {
+    tickets.forEach((element) => {
+      arr.push(element.id);
+    });
+  }
+  else {
+    arr.push(0);
+  }
   return Math.max.apply(null, arr);
 }
 
@@ -155,10 +162,23 @@ function getTicketbyId(id) {
     }
   });
 }
-postTicket({
-  name: 'test3',
-  description: 'desc3',
-  status: true,
-});
-getTickets();
-getTicketbyId(1);
+
+
+
+
+      postTicket({
+        name: 'test3',
+        description: 'desc3',
+        status: true,
+        });
+
+
+
+
+     
+
+
+
+  
+
+

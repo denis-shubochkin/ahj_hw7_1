@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prestart": "npm install",
     "start": "forever src/js/server.js",
     "list": "forever list",
     "stop": "forever stop 0",
