@@ -163,22 +163,8 @@ function getTicketbyId(id) {
   });
 }
 
-
-
-
-      postTicket({
-        name: 'test3',
-        description: 'desc3',
-        status: true,
-        });
-
-
-
-
-     
-
-
-
-  
-
-
+postTicket({
+  name: 'test3',
+  description: 'desc3',
+  status: true,
+});
