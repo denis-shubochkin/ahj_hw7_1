@@ -1,9 +1,8 @@
-
-const { XMLHttpRequest } = require('xmlhttprequest');
+const {XMLHttpRequest} = require('xmlhttprequest');
 const http = require('http');
 const Koa = require('koa');
 const koaBody = require('koa-body');
-const { nextTick } = require('process');
+
 
 const app = new Koa();
 const now = new Date();
@@ -85,9 +84,10 @@ app.use(async (ctx, next) => {
 const port = process.env.PORT || 7070;
 const server = http.createServer(app.callback()).listen(port);
 
+
 const arr = [];
 function getMaxId() {
-  if (tickets.length > 1) {
+  if (tickets.length >= 1) {
     tickets.forEach((element) => {
       arr.push(element.id);
     });
@@ -95,7 +95,7 @@ function getMaxId() {
   else {
     arr.push(0);
   }
-  return Math.max.apply(null, arr);
+  return Math.max.apply(null, arr) + 1;
 }
 
 
@@ -108,7 +108,7 @@ function postTicket(p) {
   // formData.append('created', now);
   const params = new URLSearchParams();
   params.append('method', 'createTicket');
-  params.append('id', getMaxId() + 1);
+  params.append('id', getMaxId());
   params.append('name', p.name);
   params.append('status', p.status);
   params.append('description', p.description);
